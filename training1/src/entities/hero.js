@@ -48,8 +48,16 @@ class Hero extends Phaser.GameObjects.Sprite {
 
         const didPressJump = Phaser.Input.Keyboard.JustDown(this.keys.up);
 
-        if (didPressJump && this.body.onFloor()) {
-            this.body.setVelocityY(-JUMP_SPEED);
+        if (didPressJump ) {
+            // single jump if on the floor
+            if (this.body.onFloor()) {
+                this.canDoubleJump=true;
+                this.body.setVelocityY(-JUMP_SPEED);
+            } else if (this.canDoubleJump) {
+                // doublejump
+                this.body.setVelocityY(-JUMP_SPEED * 1.75);
+                this.canDoubleJump = false;
+            }
         }
 
         if (!this.keys.up.isDown && this.body.velocity.y < -150) {
