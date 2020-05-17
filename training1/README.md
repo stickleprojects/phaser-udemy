@@ -1,3 +1,9 @@
+# Udemy template project
+
+## Link to training
+https://www.udemy.com/course/html5-game-development-2d-platform-game-fundamentals/learn/lecture/17748190#notes
+
+
 # Phaser 3 + ES6 + Webpack Boilerplate
 A boilerplate project for creating games with Phaser3, ES6 and Webpack.
 

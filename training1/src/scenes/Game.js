@@ -32,13 +32,10 @@ class Game extends Phaser.Scene {
 
     this.hero = new Hero(this, 250, 160);
 
-
-    // this.player = this.physics.add.sprite(250,160, 'hero-run-sheet',5 );
-    // this.player.anims.play  ('hero-running');
-
-    // this.player.body.setCollideWorldBounds(true);
-    // this.player.body.setSize(12,40);
-    // this.player.body.setOffset(12,23);
+    const platform = this.add.rectangle(220,240, 260,10, 0x4bcb7c);
+    this.physics.add.existing(platform, true);
+    this.physics.add.collider (platform, this.hero);
+    
   }
 
   update(time, delta) { }

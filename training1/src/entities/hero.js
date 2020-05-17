@@ -1,11 +1,12 @@
 /// <reference path="../typings/phaser.d.ts" />
 
 import Phaser from 'phaser';
-
+import StateMachine from 'javascript-state-machine';
 
 const MAX_V = { x: 250, y: 400 };
 const ACCELERATION_X = MAX_V.x * 4;   // reach max speed in 1/4 of a second
-const JUMP_SPEED = MAX_V.y * 2.5;
+const JUMP_SPEED = -400;
+const FLIP_SPEED = JUMP_SPEED * 0.75;
 
 class Hero extends Phaser.GameObjects.Sprite {
 
@@ -28,11 +29,54 @@ class Hero extends Phaser.GameObjects.Sprite {
         this.body.setMaxVelocity(MAX_V.x, MAX_V.y);
         this.keys = scene.cursorKeys;
 
+        this.setupMovement();
+
+        this.input = {};
+
     }
 
+    setupMovement() {
+        this.moveState = new StateMachine({
+            init: 'standing', // default state
+            transitions: [
+                { name: 'jump', from: 'standing', to: 'jumping' },
+                { name: 'flip', from: 'jumping', to: 'flipping' },
+                { name: 'fall', from: 'standing', to: 'falling' },
+                { name: 'touchdown', from: ['jumping', 'flipping', 'falling'], to: 'standing' },
+            ],
+            methods: {
+                onEnterState: (lifecycle) => {
+                    console.log(lifecycle);
+                },
+                onJump: () => {
+                    this.body.setVelocityY(JUMP_SPEED);
+                },
+                onFlip: () => {
+                    this.body.setVelocityY(FLIP_SPEED);
+                }
+            }
+        });
 
+        this.movePredicates = {
+            jump: () => {
+                return this.input.didPressJump;
+            },
+            flip: () => {
+                return this.input.didPressJump;
+            },
+            fall: () => {
+                return !(this.body.onFloor());
+            },
+            touchdown: () => {
+                return this.body.onFloor();
+            },
+        }
+
+    }
     preUpdate(time, delta) {
         super.preUpdate(time, delta);
+
+        this.input.didPressJump = Phaser.Input.Keyboard.JustDown(this.keys.up);
 
         if (this.keys.left.isDown) {
             this.body.setAccelerationX(-ACCELERATION_X);
@@ -46,33 +90,17 @@ class Hero extends Phaser.GameObjects.Sprite {
             this.body.setAccelerationX(0);
         }
 
-        const didPressJump = Phaser.Input.Keyboard.JustDown(this.keys.up);
-
-        // reset doublejump when we hit the floor (note, this ignores platforms/enemies/etc.)
-        if (this.body.onFloor()) {
-            this.canDoubleJump = false;
-        }
-
-        if (this.body.velocity.y > 0) {
-            this.isJumping = false;
-        }
-
-        if (didPressJump) {
-            // single jump if on the floor
-            if (this.body.onFloor()) {
-                this.canDoubleJump = true;
-                this.isJumping = true;
-                this.body.setVelocityY(-JUMP_SPEED);
-            } else if (this.canDoubleJump) {
-                // doublejump
-                this.body.setVelocityY(-JUMP_SPEED * 1.75);
-                this.isJumping = true;
-                this.canDoubleJump = false;
+        if (this.moveState.is('jumping') || this.moveState.is('flipping')) {
+            if (!this.keys.up.isDown && this.body.velocity.y < -150) {
+                this.body.setVelocityY(-150);
             }
         }
 
-        if (!this.keys.up.isDown && this.body.velocity.y < -150 && this.isJumping) {
-            this.body.setVelocityY(-150);
+        for (const t of this.moveState.transitions()) {
+            if (t in this.movePredicates && this.movePredicates[t]()) {
+                this.moveState[t]();
+                break;  // weve transitioned, skip any remaining transitions
+            }
         }
     }
 }
