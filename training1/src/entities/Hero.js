@@ -2,6 +2,8 @@
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
 
+const HERO_SPEED_X = 1000;
+
 class Hero extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y) {
@@ -49,10 +51,12 @@ class Hero extends Phaser.GameObjects.Sprite {
         return this.body.onFloor() && this.body.velocity.x === 0;
       },
       run: () => {
-        return this.body.onFloor() && Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1);
+        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1)
+        return this.body.onFloor() && facingDirectionOfWalk;
       },
       pivot: () => {
-        return this.body.onFloor() && Math.sign(this.body.velocity.x) === (this.flipX ? 1 : -1);
+        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1)
+        return this.body.onFloor() && !facingDirectionOfWalk;
       },
       jump: () => {
         return this.body.velocity.y < 0;
@@ -107,11 +111,11 @@ class Hero extends Phaser.GameObjects.Sprite {
     this.input.didPressJump = Phaser.Input.Keyboard.JustDown(this.keys.up);
     
     if (this.keys.left.isDown) {
-      this.body.setAccelerationX(-1000);
+      this.body.setAccelerationX(-HERO_SPEED_X);
       this.setFlipX(true);
       this.body.offset.x = 8;
     } else if (this.keys.right.isDown) {
-      this.body.setAccelerationX(1000);
+      this.body.setAccelerationX(HERO_SPEED_X);
       this.setFlipX(false);
       this.body.offset.x = 12;
     } else {

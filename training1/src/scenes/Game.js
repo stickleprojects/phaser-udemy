@@ -8,7 +8,7 @@ class Game extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
-  
+
   preload() {
     this.loadHeroSpriteSheets();
   }
@@ -16,7 +16,7 @@ class Game extends Phaser.Scene {
   create(data) {
 
     this.cursorKeys = this.input.keyboard.createCursorKeys();
-    
+
     this.createHeroAnims();
 
     this.hero = new Hero(this, 250, 160);
@@ -28,38 +28,26 @@ class Game extends Phaser.Scene {
   }
 
   loadHeroSpriteSheets() {
-    this.load.spritesheet('hero-idle-sheet', 'assets/hero/idle.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
 
-    this.load.spritesheet('hero-run-sheet', 'assets/hero/run.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
+    var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall'];
+    for (const sheet of ss) {
+      let key = sheet
+      let image = sheet
+      if (sheet.name) {
+        key = sheet.name
+        image = sheet.image
+      }
+      this.load.spritesheet(`hero-${key}-sheet`, `assets/hero/${image}.png`, {
+        frameWidth: 32,
+        frameHeight: 64,
+      });
+    }
 
-    this.load.spritesheet('hero-pivot-sheet', 'assets/hero/pivot.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
-
-    this.load.spritesheet('hero-jump-sheet', 'assets/hero/jump.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
-
-    this.load.spritesheet('hero-flip-sheet', 'assets/hero/spinjump.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
-
-    this.load.spritesheet('hero-fall-sheet', 'assets/hero/fall.png', {
-      frameWidth: 32,
-      frameHeight: 64,
-    });
   }
 
+  
   createHeroAnims() {
+    
     this.anims.create({
       key: 'hero-idle',
       frames: this.anims.generateFrameNumbers('hero-idle-sheet'),
@@ -94,7 +82,7 @@ class Game extends Phaser.Scene {
     });
   }
 
-  update(time, delta) {}
+  update(time, delta) { }
 }
 
 export default Game;
