@@ -82,7 +82,7 @@ class Hero extends Phaser.GameObjects.Sprite {
         { name: 'flip', from: 'jumping', to: 'flipping' },
         { name: 'fall', from: 'standing', to: 'falling' },
         { name: 'touchdown', from: ['jumping', 'flipping', 'falling'], to: 'standing' },
-        { name: 'die', from: '*', to: 'dead' },
+        { name: 'die', from: ['jumping', 'flipping', 'falling', 'standing'], to: 'dead' },
       ],
       methods: {
         onDie: () => {
@@ -115,9 +115,15 @@ class Hero extends Phaser.GameObjects.Sprite {
   }
 
   kill() {
-    // called by game class
-    this.moveState.die();
-    this.animState.die();
+    if (this.moveState.can('die')) {
+      // called by game class
+      this.moveState.die();
+      this.animState.die();
+
+      // tell other objects that we died
+      this.emit('died');
+      
+    }
   }
 
   isDead() {
@@ -127,7 +133,7 @@ class Hero extends Phaser.GameObjects.Sprite {
     super.preUpdate(time, delta);
 
 
-    this.input.didPressJump = !this.isDead() && Phaser.Input.Keyboard.JustDown(this.keys.up) ;
+    this.input.didPressJump = !this.isDead() && Phaser.Input.Keyboard.JustDown(this.keys.up);
 
     if (!this.isDead() && this.keys.left.isDown) {
       this.body.setAccelerationX(-HERO_SPEED_X);

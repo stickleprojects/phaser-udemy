@@ -17,7 +17,7 @@ class Game extends Phaser.Scene {
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
 
     // we use the tiles from the world-1-sheet so we must load it as a spriesheet rather than an image
-    this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth:32, frameHeight: 32, margin: 1, spacing: 2})
+    this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 2 })
     this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png')
 
   }
@@ -47,7 +47,7 @@ class Game extends Phaser.Scene {
     }
 
     // default properties for the spikes
-    this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false});
+    this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false });
 
     // loop all the gameobjects
     this.map.getObjectLayer("Objects").objects.forEach((itm, idx, ar) => {
@@ -60,10 +60,10 @@ class Game extends Phaser.Scene {
       if (itm.gid === 8) {
         // use the same image frame but -1 because it starts from 0
         // objct origin to bottom left
-        const newSpike = this.spikeGroup.create(itm.x, itm.y, 'world-1-sheet', itm.gid-1 );
-        newSpike.setOrigin(0,1);
-        newSpike.setSize(itm.width-10, itm.height-10);
-        newSpike.setOffset(5,10);
+        const newSpike = this.spikeGroup.create(itm.x, itm.y, 'world-1-sheet', itm.gid - 1);
+        newSpike.setOrigin(0, 1);
+        newSpike.setSize(itm.width - 10, itm.height - 10);
+        newSpike.setOffset(5, 10);
 
       }
 
@@ -90,7 +90,7 @@ class Game extends Phaser.Scene {
   addHero() {
     this.hero = new Hero(this, this.spawnPos.x, this.spawnPos.y);
     let tgtLayer = this.map.getLayer('Ground').tilemapLayer;
-    this.physics.add.collider(this.hero, tgtLayer);
+    this.groundCollider = this.physics.add.collider(this.hero, tgtLayer);
 
     // move the hero to be drawn before the foreground
 
@@ -98,9 +98,17 @@ class Game extends Phaser.Scene {
 
     this.children.moveTo(this.hero, foregroundIndex);
 
-    setTimeout(()=>{
+    // collider that doesnt prevent walking throuhg an object
+    this.spikesCollider = this.physics.add.overlap(this.hero, this.spikeGroup, (a, b) => {
       this.hero.kill();
-    }, 3000);
+      
+    });
+
+    this.hero.on('died', ()=>{
+      this.groundCollider.destroy();
+      this.spikesCollider.destroy();
+      this.hero.body.setCollideWorldBounds(false);
+    });
   }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
@@ -164,7 +172,7 @@ class Game extends Phaser.Scene {
     this.anims.create({
       key: 'hero-dead',
       frames: this.anims.generateFrameNumbers('hero-die-sheet'),
-      
+
     });
   }
 
