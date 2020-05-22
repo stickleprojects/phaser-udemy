@@ -11,20 +11,37 @@ class Game extends Phaser.Scene {
 
   preload() {
     this.loadHeroSpriteSheets();
+
+    this.load.tilemapTiledJSON('level-1','assets/tilemaps/level-1.json');
+    this.load.image('world-1-sheet','assets/tilesets/groundtiles.png')
+
   }
 
+  addMap() {
+    this.map = this.make.tilemap({key:'level-1'});
+    const groundTiles = this.map.addTilesetImage('world-1','world-1-sheet');
+
+    this.map.createStaticLayer('Ground', groundTiles);
+
+  }
   create(data) {
 
     this.cursorKeys = this.input.keyboard.createCursorKeys();
 
     this.createHeroAnims();
 
+    // this.addSamplePlatform();
+
+    this.addMap();
     this.hero = new Hero(this, 250, 160);
 
+    
+  }
+
+  addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
     this.physics.add.existing(platform, true);
     this.physics.add.collider(this.hero, platform);
-
   }
 
   loadHeroSpriteSheets() {
