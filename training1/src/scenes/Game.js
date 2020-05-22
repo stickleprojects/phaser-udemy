@@ -83,7 +83,7 @@ class Game extends Phaser.Scene {
     this.addHero();
 
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-    this.cameras.main.startFollow(this.hero);
+    
 
   }
 
@@ -110,6 +110,9 @@ class Game extends Phaser.Scene {
       this.hero.body.setCollideWorldBounds(false);
       this.cameras.main.stopFollow();
     });
+
+    this.cameras.main.startFollow(this.hero);
+
   }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
@@ -177,7 +180,16 @@ class Game extends Phaser.Scene {
     });
   }
 
-  update(time, delta) { }
+  update(time, delta) { 
+    const cameraBottom = this.cameras.main.getWorldPoint(0, this.cameras.main.height).y ;
+
+    // offscreen and dead
+    if (this.hero.isDead() && this.hero.getBounds().bottom > cameraBottom + 100) {
+      this.hero.destroy();
+      this.addHero();
+
+    }
+  }
 }
 
 export default Game;
