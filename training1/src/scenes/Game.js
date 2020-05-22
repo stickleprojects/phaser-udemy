@@ -12,17 +12,21 @@ class Game extends Phaser.Scene {
   preload() {
     this.loadHeroSpriteSheets();
 
-    this.load.tilemapTiledJSON('level-1','assets/tilemaps/level-1.json');
-    this.load.image('world-1-sheet','assets/tilesets/groundtiles.png')
+    this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
+    this.load.image('world-1-sheet', 'assets/tilesets/groundtiles.png')
 
   }
 
   addMap() {
-    this.map = this.make.tilemap({key:'level-1'});
-    const groundTiles = this.map.addTilesetImage('world-1','world-1-sheet');
+    this.map = this.make.tilemap({ key: 'level-1' });
+    const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
 
     this.map.createStaticLayer('Ground', groundTiles);
 
+    this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
+
+    // allow her to jump up outside the world, but not fall off the bottom
+    this.physics.world.setBoundsCollision (true, true, false, true);
   }
   create(data) {
 
@@ -35,7 +39,9 @@ class Game extends Phaser.Scene {
     this.addMap();
     this.hero = new Hero(this, 250, 160);
 
-    
+    this.cameras.main.setBounds(0,0,this.map.widthInPixels, this.map.heightInPixels);
+    this.cameras.main.startFollow(this.hero);
+
   }
 
   addSamplePlatform() {
@@ -62,9 +68,9 @@ class Game extends Phaser.Scene {
 
   }
 
-  
+
   createHeroAnims() {
-    
+
     this.anims.create({
       key: 'hero-idle',
       frames: this.anims.generateFrameNumbers('hero-idle-sheet'),
