@@ -16,13 +16,18 @@ class Game extends Phaser.Scene {
 
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
     this.load.image('world-1-sheet', 'assets/tilesets/groundtiles.png')
-
+    this.load.image('clouds-sheet','assets/tilesets/Clouds.png')
+    
   }
 
   addMap() {
     this.map = this.make.tilemap({ key: 'level-1' });
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
+    const backgroundTiles = this.map.addTilesetImage('clouds','clouds-sheet');
 
+    const backgroundLayer = this.map.createStaticLayer('Background', backgroundTiles);
+    var backgroundScrollSpeed = 0.6;
+    backgroundLayer.setScrollFactor(backgroundScrollSpeed)
     const groundLayer =this.map.createStaticLayer('Ground', groundTiles);
     this.foregroundLayer =this.map.createStaticLayer('Foreground', groundTiles);
 
