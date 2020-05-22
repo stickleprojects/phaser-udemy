@@ -26,7 +26,7 @@ class Game extends Phaser.Scene {
     const backgroundTiles = this.map.addTilesetImage('clouds','clouds-sheet');
 
     const backgroundLayer = this.map.createStaticLayer('Background', backgroundTiles);
-    var backgroundScrollSpeed = 0.6;
+    const backgroundScrollSpeed = 0.6;
     backgroundLayer.setScrollFactor(backgroundScrollSpeed)
     const groundLayer =this.map.createStaticLayer('Ground', groundTiles);
     this.foregroundLayer =this.map.createStaticLayer('Foreground', groundTiles);
@@ -44,6 +44,13 @@ class Game extends Phaser.Scene {
       const debugGraphics = this.add.graphics();
       groundLayer.renderDebug(debugGraphics);
     }
+
+    // loop all the gameobjects
+    this.map.getObjectLayer("Objects").objects.forEach ((itm, idx, ar) => {
+      if (itm.name == "start") {
+        this.spawnPos = { x: itm.x, y:itm.y };
+      }
+    });
 
   }
   create(data) {
@@ -63,7 +70,7 @@ class Game extends Phaser.Scene {
   }
 
   addHero() {
-    this.hero = new Hero(this, 250, 160);
+    this.hero = new Hero(this, this.spawnPos.x , this.spawnPos.y);
     let tgtLayer= this.map.getLayer('Ground').tilemapLayer;
     this.physics.add.collider(this.hero, tgtLayer);
 
