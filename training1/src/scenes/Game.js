@@ -24,6 +24,7 @@ class Game extends Phaser.Scene {
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
 
     const groundLayer =this.map.createStaticLayer('Ground', groundTiles);
+    this.foregroundLayer =this.map.createStaticLayer('Foreground', groundTiles);
 
     // tileIDs to colide with (each is offset by 1)
     groundLayer.setCollision([1,4,5], true);
@@ -61,6 +62,11 @@ class Game extends Phaser.Scene {
     let tgtLayer= this.map.getLayer('Ground').tilemapLayer;
     this.physics.add.collider(this.hero, tgtLayer);
 
+    // move the hero to be drawn before the foreground
+    
+    var foregroundIndex = this.children.getIndex(this.foregroundLayer);
+    
+    this.children.moveTo(this.hero, foregroundIndex );
   }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
