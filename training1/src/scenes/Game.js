@@ -6,6 +6,8 @@ import Hero from '../entities/Hero';
 class Game extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
+
+    this.showTileDebugging=false;
   }
 
 
@@ -30,6 +32,12 @@ class Game extends Phaser.Scene {
 
     // allow her to jump up outside the world, but not fall off the bottom
     this.physics.world.setBoundsCollision (true, true, false, true);
+
+    
+    if (this.showTileDebugging) {
+      const debugGraphics = this.add.graphics();
+      groundLayer.renderDebug(debugGraphics);
+    }
 
   }
   create(data) {
