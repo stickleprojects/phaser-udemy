@@ -90,7 +90,7 @@ class Game extends Phaser.Scene {
   addHero() {
     this.hero = new Hero(this, this.spawnPos.x, this.spawnPos.y);
     let tgtLayer = this.map.getLayer('Ground').tilemapLayer;
-    this.groundCollider = this.physics.add.collider(this.hero, tgtLayer);
+    const groundCollider = this.physics.add.collider(this.hero, tgtLayer);
 
     // move the hero to be drawn before the foreground
 
@@ -99,15 +99,16 @@ class Game extends Phaser.Scene {
     this.children.moveTo(this.hero, foregroundIndex);
 
     // collider that doesnt prevent walking throuhg an object
-    this.spikesCollider = this.physics.add.overlap(this.hero, this.spikeGroup, (a, b) => {
+    const spikesCollider = this.physics.add.overlap(this.hero, this.spikeGroup, (a, b) => {
       this.hero.kill();
-      
+
     });
 
-    this.hero.on('died', ()=>{
-      this.groundCollider.destroy();
-      this.spikesCollider.destroy();
+    this.hero.on('died', () => {
+      groundCollider.destroy();
+      spikesCollider.destroy();
       this.hero.body.setCollideWorldBounds(false);
+      this.cameras.main.stopFollow();
     });
   }
   addSamplePlatform() {
