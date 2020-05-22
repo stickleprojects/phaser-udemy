@@ -8,14 +8,14 @@ class Hero extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y) {
     super(scene, x, y, 'hero-run-sheet', 0);
-    
+
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.anims.play('hero-running');
 
     // middle bottom
-    this.setOrigin(0.5,1);
+    this.setOrigin(0.5, 1);
 
     this.body.setCollideWorldBounds(true);
     this.body.setSize(12, 40);
@@ -39,7 +39,8 @@ class Hero extends Phaser.GameObjects.Sprite {
         { name: 'pivot', from: ['falling', 'running'], to: 'pivoting' },
         { name: 'jump', from: ['idle', 'running', 'pivoting'], to: 'jumping' },
         { name: 'flip', from: ['jumping', 'falling'], to: 'flipping' },
-        { name: 'fall', from: '*', to: 'falling' },
+        { name: 'fall', from: ['idle', 'running', 'pivoting', 'jumping', 'flipping'], to: 'falling' },
+        { name: 'die', from: '*', to: 'dead' },
       ],
       methods: {
         onEnterState: (lifecycle) => {
@@ -80,9 +81,14 @@ class Hero extends Phaser.GameObjects.Sprite {
         { name: 'jump', from: 'standing', to: 'jumping' },
         { name: 'flip', from: 'jumping', to: 'flipping' },
         { name: 'fall', from: 'standing', to: 'falling' },
-        { name: 'touchdown', from: ['jumping', 'flipping', 'falling'], to: 'standing'},
+        { name: 'touchdown', from: ['jumping', 'flipping', 'falling'], to: 'standing' },
+        { name: 'die', from: '*', to: 'dead' },
       ],
       methods: {
+        onDie: () => {
+          this.body.setVelocity(0, -500);
+          this.body.setAcceleration(0);
+        },
         onJump: () => {
           this.body.setVelocityY(-400);
         },
@@ -108,16 +114,26 @@ class Hero extends Phaser.GameObjects.Sprite {
     };
   }
 
+  kill() {
+    // called by game class
+    this.moveState.die();
+    this.animState.die();
+  }
+
+  isDead() {
+    return this.moveState.is('dead');
+  }
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
-    this.input.didPressJump = Phaser.Input.Keyboard.JustDown(this.keys.up);
-    
-    if (this.keys.left.isDown) {
+
+    this.input.didPressJump = !this.isDead() && Phaser.Input.Keyboard.JustDown(this.keys.up) ;
+
+    if (!this.isDead() && this.keys.left.isDown) {
       this.body.setAccelerationX(-HERO_SPEED_X);
       this.setFlipX(true);
       this.body.offset.x = 8;
-    } else if (this.keys.right.isDown) {
+    } else if (!this.isDead() && this.keys.right.isDown) {
       this.body.setAccelerationX(HERO_SPEED_X);
       this.setFlipX(false);
       this.body.offset.x = 12;

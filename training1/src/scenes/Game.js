@@ -15,6 +15,8 @@ class Game extends Phaser.Scene {
     this.loadHeroSpriteSheets();
 
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
+
+    // we use the tiles from the world-1-sheet so we must load it as a spriesheet rather than an image
     this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth:32, frameHeight: 32, margin: 1, spacing: 2})
     this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png')
 
@@ -95,6 +97,10 @@ class Game extends Phaser.Scene {
     var foregroundIndex = this.children.getIndex(this.foregroundLayer);
 
     this.children.moveTo(this.hero, foregroundIndex);
+
+    setTimeout(()=>{
+      this.hero.kill();
+    }, 3000);
   }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
@@ -104,7 +110,7 @@ class Game extends Phaser.Scene {
 
   loadHeroSpriteSheets() {
 
-    var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall'];
+    var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall', { name: 'die', image: 'bonk' }];
     for (const sheet of ss) {
       let key = sheet
       let image = sheet
@@ -154,6 +160,11 @@ class Game extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers('hero-fall-sheet'),
       frameRate: 10,
       repeat: -1,
+    });
+    this.anims.create({
+      key: 'hero-dead',
+      frames: this.anims.generateFrameNumbers('hero-die-sheet'),
+      
     });
   }
 
