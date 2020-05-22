@@ -7,7 +7,7 @@ class Game extends Phaser.Scene {
   constructor() {
     super({ key: 'GameScene' });
 
-    this.showTileDebugging=false;
+    this.showTileDebugging = false;
   }
 
 
@@ -15,42 +15,58 @@ class Game extends Phaser.Scene {
     this.loadHeroSpriteSheets();
 
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
-    this.load.image('world-1-sheet', 'assets/tilesets/groundtiles.png')
-    this.load.image('clouds-sheet','assets/tilesets/Clouds.png')
-    
+    this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth:32, frameHeight: 32, margin: 1, spacing: 2})
+    this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png')
+
   }
 
   addMap() {
     this.map = this.make.tilemap({ key: 'level-1' });
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
-    const backgroundTiles = this.map.addTilesetImage('clouds','clouds-sheet');
+    const backgroundTiles = this.map.addTilesetImage('clouds', 'clouds-sheet');
 
     const backgroundLayer = this.map.createStaticLayer('Background', backgroundTiles);
     const backgroundScrollSpeed = 0.6;
     backgroundLayer.setScrollFactor(backgroundScrollSpeed)
-    const groundLayer =this.map.createStaticLayer('Ground', groundTiles);
-    this.foregroundLayer =this.map.createStaticLayer('Foreground', groundTiles);
+    const groundLayer = this.map.createStaticLayer('Ground', groundTiles);
 
     // tileIDs to colide with (each is offset by 1)
-    groundLayer.setCollision([1,4,5], true);
+    groundLayer.setCollision([1, 4, 5], true);
 
     this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
     // allow her to jump up outside the world, but not fall off the bottom
-    this.physics.world.setBoundsCollision (true, true, false, true);
+    this.physics.world.setBoundsCollision(true, true, false, true);
 
-    
+
     if (this.showTileDebugging) {
       const debugGraphics = this.add.graphics();
       groundLayer.renderDebug(debugGraphics);
     }
 
+    // default properties for the spikes
+    this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false});
+
     // loop all the gameobjects
-    this.map.getObjectLayer("Objects").objects.forEach ((itm, idx, ar) => {
+    this.map.getObjectLayer("Objects").objects.forEach((itm, idx, ar) => {
       if (itm.name == "start") {
-        this.spawnPos = { x: itm.x, y:itm.y };
+        this.spawnPos = { x: itm.x, y: itm.y };
       }
+
+
+      // tileid 7 is a spike, (we add 1 because they start from 1)
+      if (itm.gid === 8) {
+        // use the same image frame but -1 because it starts from 0
+        // objct origin to bottom left
+        const newSpike = this.spikeGroup.create(itm.x, itm.y, 'world-1-sheet', itm.gid-1 );
+        newSpike.setOrigin(0,1);
+        newSpike.setSize(itm.width-10, itm.height-10);
+        newSpike.setOffset(5,10);
+
+      }
+
     });
+    this.foregroundLayer = this.map.createStaticLayer('Foreground', groundTiles);
 
   }
   create(data) {
@@ -64,21 +80,21 @@ class Game extends Phaser.Scene {
     this.addMap();
     this.addHero();
 
-    this.cameras.main.setBounds(0,0,this.map.widthInPixels, this.map.heightInPixels);
+    this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
     this.cameras.main.startFollow(this.hero);
 
   }
 
   addHero() {
-    this.hero = new Hero(this, this.spawnPos.x , this.spawnPos.y);
-    let tgtLayer= this.map.getLayer('Ground').tilemapLayer;
+    this.hero = new Hero(this, this.spawnPos.x, this.spawnPos.y);
+    let tgtLayer = this.map.getLayer('Ground').tilemapLayer;
     this.physics.add.collider(this.hero, tgtLayer);
 
     // move the hero to be drawn before the foreground
-    
+
     var foregroundIndex = this.children.getIndex(this.foregroundLayer);
-    
-    this.children.moveTo(this.hero, foregroundIndex );
+
+    this.children.moveTo(this.hero, foregroundIndex);
   }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
