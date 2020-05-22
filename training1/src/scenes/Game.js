@@ -21,12 +21,16 @@ class Game extends Phaser.Scene {
     this.map = this.make.tilemap({ key: 'level-1' });
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
 
-    this.map.createStaticLayer('Ground', groundTiles);
+    const groundLayer =this.map.createStaticLayer('Ground', groundTiles);
+
+    // tileIDs to colide with (each is offset by 1)
+    groundLayer.setCollision([1,4,5], true);
 
     this.physics.world.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
     // allow her to jump up outside the world, but not fall off the bottom
     this.physics.world.setBoundsCollision (true, true, false, true);
+
   }
   create(data) {
 
@@ -37,13 +41,19 @@ class Game extends Phaser.Scene {
     // this.addSamplePlatform();
 
     this.addMap();
-    this.hero = new Hero(this, 250, 160);
+    this.addHero();
 
     this.cameras.main.setBounds(0,0,this.map.widthInPixels, this.map.heightInPixels);
     this.cameras.main.startFollow(this.hero);
 
   }
 
+  addHero() {
+    this.hero = new Hero(this, 250, 160);
+    let tgtLayer= this.map.getLayer('Ground').tilemapLayer;
+    this.physics.add.collider(this.hero, tgtLayer);
+
+  }
   addSamplePlatform() {
     const platform = this.add.rectangle(220, 240, 260, 10, 0x4BCB7C);
     this.physics.add.existing(platform, true);
