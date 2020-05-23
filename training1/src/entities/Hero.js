@@ -74,6 +74,9 @@ class Hero extends Phaser.GameObjects.Sprite {
     };
   }
 
+  isOnFloor() { 
+    return this.body.onFloor();
+  }
   setupMovement() {
     this.moveState = new StateMachine({
       init: 'standing',
@@ -91,6 +94,7 @@ class Hero extends Phaser.GameObjects.Sprite {
         },
         onJump: () => {
           this.body.setVelocityY(-400);
+          this.emit('jump');
         },
         onFlip: () => {
           this.body.setVelocityY(-300);
@@ -138,10 +142,12 @@ class Hero extends Phaser.GameObjects.Sprite {
     if (!this.isDead() && this.keys.left.isDown) {
       this.body.setAccelerationX(-HERO_SPEED_X);
       this.setFlipX(true);
+      this.emit('run');
       this.body.offset.x = 8;
     } else if (!this.isDead() && this.keys.right.isDown) {
       this.body.setAccelerationX(HERO_SPEED_X);
       this.setFlipX(false);
+      this.emit('run');
       this.body.offset.x = 12;
     } else {
       this.body.setAccelerationX(0);
@@ -151,7 +157,7 @@ class Hero extends Phaser.GameObjects.Sprite {
       if (!this.keys.up.isDown && this.body.velocity.y < -150) {
         this.body.setVelocityY(-150);
       }
-    }
+    } 
 
     for (const t of this.moveState.transitions()) {
       if (t in this.movePredicates && this.movePredicates[t]()) {

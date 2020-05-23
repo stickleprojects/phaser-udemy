@@ -11,8 +11,18 @@ class Game extends Phaser.Scene {
   }
 
 
+  loadSounds() {
+    this.load.audio('key', ['assets/sounds/Key1.wav']);
+    this.load.audio('jump', 'assets/sounds/jump.wav');
+    this.load.audio('die','assets/sounds/die.wav')
+    this.load.audio('footstep','assets/sounds/foot.wav')
+
+    
+  }
   preload() {
     this.loadHeroSpriteSheets();
+
+    this.loadSounds();
 
     this.points = 0;
 
@@ -25,7 +35,7 @@ class Game extends Phaser.Scene {
     this.load.spritesheet('key-sheet', 'assets/tiles/key.png', { frameWidth: 32, frameHeight: 32 });
   }
 
-  
+
   addMap() {
     this.map = this.make.tilemap({ key: 'level-1' });
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
@@ -60,9 +70,9 @@ class Game extends Phaser.Scene {
     this.map.getObjectLayer("Objects").objects.forEach((itm, idx, ar) => {
       if (itm.name == "start") {
         this.spawnPos = { x: itm.x, y: itm.y };
-      } else      if (itm.type == "key") {
+      } else if (itm.type == "key") {
         const newKey = this.keyGroup.create(itm.x, itm.y, "key-sheet");
-        
+
         newKey.anims.play('key-spinning');
 
         newKey.setOrigin(0, 1);
@@ -85,7 +95,7 @@ class Game extends Phaser.Scene {
   }
 
   addHud() {
-    this.scorehud = this.add.text(0,0,"SCORE: 0", { font: '12px Arial', fill: '#ffffa0' });
+    this.scorehud = this.add.text(0, 0, "SCORE: 0", { font: '12px Arial', fill: '#ffffa0' });
     this.scorehud.setScrollFactor(0);
 
   }
@@ -97,7 +107,7 @@ class Game extends Phaser.Scene {
     this.createHeroAnims();
 
     // this.addSamplePlatform();
-    
+
     this.addMap();
     this.addHero();
 
@@ -125,17 +135,40 @@ class Game extends Phaser.Scene {
 
     });
 
-    const keyCollider = this.physics.add.overlap(this.hero, this.keyGroup, (a,b)=>{
+    const keyCollider = this.physics.add.overlap(this.hero, this.keyGroup, (a, b) => {
       b.destroy();
       this.points += 10;
+      this.sound.play('key');
     })
 
+    
+    const footStepSound = this.sound.add('footstep', {
+      loop: false
+    });
+
+    
+    this.hero.on('run', ()=>{
+      
+      if(this.hero.isOnFloor()) {
+      if(!footStepSound.isPlaying) {
+        footStepSound.play();
+      }
+    }
+    })
+    this.hero.on('jump', ()=> {
+      
+      footStepSound.stop();
+
+      this.sound.play('jump', );
+    });
     this.hero.on('died', () => {
       groundCollider.destroy();
       spikesCollider.destroy();
       keyCollider.destroy();
+      this.sound.play('die');
       this.hero.body.setCollideWorldBounds(false);
       this.cameras.main.stopFollow();
+     
     });
 
     this.cameras.main.startFollow(this.hero);
@@ -174,7 +207,7 @@ class Game extends Phaser.Scene {
       showOnStart: true
     });
 
-    
+
   }
 
   createHeroAnims() {
@@ -229,7 +262,7 @@ class Game extends Phaser.Scene {
     }
 
     this.scorehud.setText("SCORE: " + this.points);
-    
+
   }
 
 }
