@@ -14,18 +14,23 @@ class Game extends Phaser.Scene {
   preload() {
     this.loadHeroSpriteSheets();
 
+    this.points = 0;
+
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
 
     // we use the tiles from the world-1-sheet so we must load it as a spriesheet rather than an image
     this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 2 })
     this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png')
 
+    this.load.spritesheet('key-sheet', 'assets/tiles/key.png', { frameWidth: 32, frameHeight: 32 });
   }
 
+  
   addMap() {
     this.map = this.make.tilemap({ key: 'level-1' });
     const groundTiles = this.map.addTilesetImage('world-1', 'world-1-sheet');
     const backgroundTiles = this.map.addTilesetImage('clouds', 'clouds-sheet');
+
 
     const backgroundLayer = this.map.createStaticLayer('Background', backgroundTiles);
     const backgroundScrollSpeed = 0.6;
@@ -46,6 +51,8 @@ class Game extends Phaser.Scene {
       groundLayer.renderDebug(debugGraphics);
     }
 
+    this.keyGroup = this.physics.add.group({ immovable: true, allowGravity: false });
+
     // default properties for the spikes
     this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false });
 
@@ -53,11 +60,16 @@ class Game extends Phaser.Scene {
     this.map.getObjectLayer("Objects").objects.forEach((itm, idx, ar) => {
       if (itm.name == "start") {
         this.spawnPos = { x: itm.x, y: itm.y };
-      }
+      } else      if (itm.type == "key") {
+        const newKey = this.keyGroup.create(itm.x, itm.y, "key-sheet");
+        
+        newKey.anims.play('key-spinning');
 
-
-      // tileid 7 is a spike, (we add 1 because they start from 1)
-      if (itm.gid === 8) {
+        newKey.setOrigin(0, 1);
+        //newKey.setSize(itm.width - 10, itm.height - 10);
+        //newKey.setOffset(5, 10);
+      } else if (itm.gid === 8) {
+        // gid 8 is image 7, which is a spike
         // use the same image frame but -1 because it starts from 0
         // objct origin to bottom left
         const newSpike = this.spikeGroup.create(itm.x, itm.y, 'world-1-sheet', itm.gid - 1);
@@ -71,19 +83,28 @@ class Game extends Phaser.Scene {
     this.foregroundLayer = this.map.createStaticLayer('Foreground', groundTiles);
 
   }
+
+  addHud() {
+    this.scorehud = this.add.text(0,0,"SCORE: 0", { font: '12px Arial', fill: '#ffffa0' });
+    this.scorehud.setScrollFactor(0);
+
+  }
   create(data) {
 
     this.cursorKeys = this.input.keyboard.createCursorKeys();
 
+    this.createKeyAnims();
     this.createHeroAnims();
 
     // this.addSamplePlatform();
-
+    
     this.addMap();
     this.addHero();
 
+    this.addHud();
+
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-    
+
 
   }
 
@@ -104,9 +125,15 @@ class Game extends Phaser.Scene {
 
     });
 
+    const keyCollider = this.physics.add.overlap(this.hero, this.keyGroup, (a,b)=>{
+      b.destroy();
+      this.points += 10;
+    })
+
     this.hero.on('died', () => {
       groundCollider.destroy();
       spikesCollider.destroy();
+      keyCollider.destroy();
       this.hero.body.setCollideWorldBounds(false);
       this.cameras.main.stopFollow();
     });
@@ -138,6 +165,17 @@ class Game extends Phaser.Scene {
 
   }
 
+  createKeyAnims() {
+    const a = this.anims.create({
+      key: 'key-spinning',
+      frames: this.anims.generateFrameNumbers('key-sheet'),
+      repeat: -1,
+      frameRate: 15,
+      showOnStart: true
+    });
+
+    
+  }
 
   createHeroAnims() {
 
@@ -180,8 +218,8 @@ class Game extends Phaser.Scene {
     });
   }
 
-  update(time, delta) { 
-    const cameraBottom = this.cameras.main.getWorldPoint(0, this.cameras.main.height).y ;
+  update(time, delta) {
+    const cameraBottom = this.cameras.main.getWorldPoint(0, this.cameras.main.height).y;
 
     // offscreen and dead
     if (this.hero.isDead() && this.hero.getBounds().bottom > cameraBottom + 100) {
@@ -189,7 +227,11 @@ class Game extends Phaser.Scene {
       this.addHero();
 
     }
+
+    this.scorehud.setText("SCORE: " + this.points);
+    
   }
+
 }
 
 export default Game;
