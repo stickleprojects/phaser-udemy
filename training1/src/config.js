@@ -13,7 +13,7 @@ export default {
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   render: {
-pixelArt:true
+    pixelArt:true
   },
   // see photonstorm.github.io/phase3-docs/phaser.physics.arcade.html
   physics: {

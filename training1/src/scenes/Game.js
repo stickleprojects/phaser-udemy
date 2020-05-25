@@ -2,6 +2,7 @@
 
 import Phaser from 'phaser';
 import Hero from '../entities/Hero';
+import MyDialog1 from './mydialog';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -14,10 +15,9 @@ class Game extends Phaser.Scene {
   loadSounds() {
     this.load.audio('key', ['assets/sounds/Key1.wav']);
     this.load.audio('jump', 'assets/sounds/jump.wav');
-    this.load.audio('die','assets/sounds/die.wav')
-    this.load.audio('footstep','assets/sounds/foot.wav')
+    this.load.audio('die', 'assets/sounds/die.wav');
 
-    
+
   }
   preload() {
     this.loadHeroSpriteSheets();
@@ -29,8 +29,8 @@ class Game extends Phaser.Scene {
     this.load.tilemapTiledJSON('level-1', 'assets/tilemaps/level-1.json');
 
     // we use the tiles from the world-1-sheet so we must load it as a spriesheet rather than an image
-    this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 2 })
-    this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png')
+    this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 2 });
+    this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png');
 
     this.load.spritesheet('key-sheet', 'assets/tiles/key.png', { frameWidth: 32, frameHeight: 32 });
   }
@@ -44,7 +44,7 @@ class Game extends Phaser.Scene {
 
     const backgroundLayer = this.map.createStaticLayer('Background', backgroundTiles);
     const backgroundScrollSpeed = 0.6;
-    backgroundLayer.setScrollFactor(backgroundScrollSpeed)
+    backgroundLayer.setScrollFactor(backgroundScrollSpeed);
     const groundLayer = this.map.createStaticLayer('Ground', groundTiles);
 
     // tileIDs to colide with (each is offset by 1)
@@ -67,11 +67,11 @@ class Game extends Phaser.Scene {
     this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false });
 
     // loop all the gameobjects
-    this.map.getObjectLayer("Objects").objects.forEach((itm, idx, ar) => {
-      if (itm.name == "start") {
+    this.map.getObjectLayer('Objects').objects.forEach((itm) => {
+      if (itm.name == 'start') {
         this.spawnPos = { x: itm.x, y: itm.y };
-      } else if (itm.type == "key") {
-        const newKey = this.keyGroup.create(itm.x, itm.y, "key-sheet");
+      } else if (itm.type == 'key') {
+        const newKey = this.keyGroup.create(itm.x, itm.y, 'key-sheet');
 
         newKey.anims.play('key-spinning');
 
@@ -95,13 +95,15 @@ class Game extends Phaser.Scene {
   }
 
   addHud() {
-    this.scorehud = this.add.text(0, 0, "SCORE: 0", { font: '12px Arial', fill: '#ffffa0' });
+    this.scorehud = this.add.text(0, 0, 'SCORE: 0', { font: '12px Arial', fill: '#ffffa0' });
     this.scorehud.setScrollFactor(0);
 
+
   }
-  create(data) {
+  create() {
 
     this.cursorKeys = this.input.keyboard.createCursorKeys();
+
 
     this.createKeyAnims();
     this.createHeroAnims();
@@ -115,9 +117,20 @@ class Game extends Phaser.Scene {
 
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
 
+    this.bindEvents();
 
   }
 
+  bindEvents() {
+    this.events.on('pause', (args) => {
+      console.log(args.config.key + ' paused');
+    });
+    this.events.on('resume', (args) => {
+      console.log(args.config.key + ' resumed');
+    });
+
+
+  }
   addHero() {
     this.hero = new Hero(this, this.spawnPos.x, this.spawnPos.y);
     let tgtLayer = this.map.getLayer('Ground').tilemapLayer;
@@ -130,36 +143,21 @@ class Game extends Phaser.Scene {
     this.children.moveTo(this.hero, foregroundIndex);
 
     // collider that doesnt prevent walking throuhg an object
-    const spikesCollider = this.physics.add.overlap(this.hero, this.spikeGroup, (a, b) => {
+    const spikesCollider = this.physics.add.overlap(this.hero, this.spikeGroup, () => {
       this.hero.kill();
-
     });
 
     const keyCollider = this.physics.add.overlap(this.hero, this.keyGroup, (a, b) => {
       b.destroy();
       this.points += 10;
       this.sound.play('key');
-    })
-
-    
-    const footStepSound = this.sound.add('footstep', {
-      loop: false
     });
 
-    
-    this.hero.on('run', ()=>{
-      
-      if(this.hero.isOnFloor()) {
-      if(!footStepSound.isPlaying) {
-        footStepSound.play();
-      }
-    }
-    })
-    this.hero.on('jump', ()=> {
-      
-      footStepSound.stop();
 
-      this.sound.play('jump', );
+    this.hero.on('jump', () => {
+
+
+      this.sound.play('jump');
     });
     this.hero.on('died', () => {
       groundCollider.destroy();
@@ -168,7 +166,7 @@ class Game extends Phaser.Scene {
       this.sound.play('die');
       this.hero.body.setCollideWorldBounds(false);
       this.cameras.main.stopFollow();
-     
+
     });
 
     this.cameras.main.startFollow(this.hero);
@@ -184,11 +182,11 @@ class Game extends Phaser.Scene {
 
     var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall', { name: 'die', image: 'bonk' }];
     for (const sheet of ss) {
-      let key = sheet
-      let image = sheet
+      let key = sheet;
+      let image = sheet;
       if (sheet.name) {
-        key = sheet.name
-        image = sheet.image
+        key = sheet.name;
+        image = sheet.image;
       }
       this.load.spritesheet(`hero-${key}-sheet`, `assets/hero/${image}.png`, {
         frameWidth: 32,
@@ -199,14 +197,13 @@ class Game extends Phaser.Scene {
   }
 
   createKeyAnims() {
-    const a = this.anims.create({
+    this.anims.create({
       key: 'key-spinning',
       frames: this.anims.generateFrameNumbers('key-sheet'),
       repeat: -1,
       frameRate: 15,
       showOnStart: true
     });
-
 
   }
 
@@ -251,7 +248,7 @@ class Game extends Phaser.Scene {
     });
   }
 
-  update(time, delta) {
+  update() {
     const cameraBottom = this.cameras.main.getWorldPoint(0, this.cameras.main.height).y;
 
     // offscreen and dead
@@ -261,10 +258,44 @@ class Game extends Phaser.Scene {
 
     }
 
-    this.scorehud.setText("SCORE: " + this.points);
+    this.scorehud.setText('SCORE: ' + this.points);
+
+    const spacePressed = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
+
+    if (spacePressed && this.hero.isOnFloor()) {
+      this.input.keyboard.resetKeys();
+      this.showDialog();
+    }
 
   }
 
+
+  showDialog() {
+
+    const key = 'MyDialog1';
+    if (!this.dialog) {
+
+      this.dialog = new MyDialog1(key);
+      this.scene.add(key, this.dialog);
+    }
+
+    this.scene.launch(key, () => {
+      console.log('i think im here');
+      this.scene.resume();
+    });
+    this.scene.pause();
+
+    // this.time.addEvent({
+    //   delay:1000,
+    //   callback: ()=>{
+    //     this.scene.stop(key);
+
+    //   },
+    //   repeat: false
+    // })
+
+  }
 }
+
 
 export default Game;

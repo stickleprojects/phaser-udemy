@@ -55,11 +55,11 @@ class Hero extends Phaser.GameObjects.Sprite {
         return this.body.onFloor() && this.body.velocity.x === 0;
       },
       run: () => {
-        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1)
+        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1);
         return this.body.onFloor() && facingDirectionOfWalk;
       },
       pivot: () => {
-        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1)
+        let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1);
         return this.body.onFloor() && !facingDirectionOfWalk;
       },
       jump: () => {
