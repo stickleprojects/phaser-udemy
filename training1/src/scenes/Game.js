@@ -2,7 +2,7 @@
 
 import Phaser from 'phaser';
 import Hero from '../entities/Hero';
-import MyDialog1 from './mydialog';
+import Actions from '../dialogs/actions';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -21,6 +21,7 @@ class Game extends Phaser.Scene {
   }
   preload() {
     this.loadHeroSpriteSheets();
+    this.loadUI();
 
     this.loadSounds();
 
@@ -178,6 +179,10 @@ class Game extends Phaser.Scene {
     this.physics.add.collider(this.hero, platform);
   }
 
+  loadUI() {
+    this.load.multiatlas('ui', 'assets/io/rpg_ui.json', 'assets/ui');
+
+  }
   loadHeroSpriteSheets() {
 
     var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall', { name: 'die', image: 'bonk' }];
@@ -272,10 +277,10 @@ class Game extends Phaser.Scene {
 
   showDialog() {
 
-    const key = 'MyDialog1';
+    const key = 'ActionsDialog';
     if (!this.dialog) {
 
-      this.dialog = new MyDialog1(key);
+      this.dialog = new Actions(key);
       this.scene.add(key, this.dialog);
     }
 

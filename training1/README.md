@@ -37,3 +37,21 @@ Bundles and minimises scripts and outputs them along with a copy of the assets/ 
 To build for distribution run:
 
 `npm run build`
+
+
+# Credits
+https://opengameart.org/content/rpg-gui-construction-kit-v10
+
+
+# To split the png
+Open it in Gimp
+Use fuzzy logic (wand)
+click in whitespace
+Use plugin script to export selection
+https://stackoverflow.com/questions/23888287/split-image-into-parts/58196996#58196996
+
+
+also see:
+https://github.com/koreezgames/phaser3-ninepatch-plugin
+
+for the ui nine-patch

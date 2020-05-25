@@ -2,7 +2,7 @@
 
 import Phaser from 'phaser';
 
-class MyDialog1 extends Phaser.Scene {
+class Actions extends Phaser.Scene {
 
   constructor(handle) {
     super(handle);
@@ -37,4 +37,4 @@ class MyDialog1 extends Phaser.Scene {
   update() { }
 }
 
-export default MyDialog1;
+export default Actions;
