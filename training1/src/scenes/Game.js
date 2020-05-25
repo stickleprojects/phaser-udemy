@@ -21,7 +21,6 @@ class Game extends Phaser.Scene {
   }
   preload() {
     this.loadHeroSpriteSheets();
-    this.loadUI();
 
     this.loadSounds();
 
@@ -179,10 +178,7 @@ class Game extends Phaser.Scene {
     this.physics.add.collider(this.hero, platform);
   }
 
-  loadUI() {
-    this.load.multiatlas('ui', 'assets/io/rpg_ui.json', 'assets/ui');
 
-  }
   loadHeroSpriteSheets() {
 
     var ss = ['idle', 'run', 'pivot', 'jump', { name: 'flip', image: 'spinjump' }, 'fall', { name: 'die', image: 'bonk' }];

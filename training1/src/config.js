@@ -1,6 +1,6 @@
 /// <reference path="./typings/phaser.d.ts" />
 
-import NinePatchPlugin from '@koreez/phaser3-ninepatch';
+import { NinePatchPlugin } from '@koreez/phaser3-ninepatch';
 import Phaser from 'phaser';
 
 export default {
