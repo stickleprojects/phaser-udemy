@@ -1,5 +1,9 @@
 # Udemy template project
 
+Netlify Build Status
+[![Netlify Status](https://api.netlify.com/api/v1/badges/7a1efd6c-dba1-4b41-9fdb-a8eb65c43e30/deploy-status)](https://app.netlify.com/sites/stickleprojects-phaser-demo-2/deploys)
+
+
 ## Link to training
 https://www.udemy.com/course/html5-game-development-2d-platform-game-fundamentals/learn/lecture/17748190#notes
 
