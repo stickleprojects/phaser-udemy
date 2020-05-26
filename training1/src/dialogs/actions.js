@@ -131,6 +131,7 @@ class Actions extends Phaser.Scene {
   onExit(args) {
     console.log("shutting down dialog");
     this.scene.stop();
+    this.onClose();
   }
   update() {
 
