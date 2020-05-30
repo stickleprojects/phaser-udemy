@@ -1,17 +1,14 @@
 /// <reference path="../typings/phaser.d.ts" />
 
-import { NinePatch } from '@koreez/phaser3-ninepatch';
-import Phaser from 'phaser';
-import { TextButton } from '../game-objects/textbutton';
 import Inventory from './inventory';
 import DialogBase from './dialogbase';
+import CharacterList from './characterlist';
 
 class Actions extends DialogBase {
 
-
+  
   constructor(handle, cursorKeys) {
     super(handle, cursorKeys);
-
 
   }
 
@@ -20,23 +17,64 @@ class Actions extends DialogBase {
 
     const menus = ['Give', 'Take', 'Pick Up', 'Drop', 'Call Lift', 'Exit'];
 
+    this.createDialogs();
     this.addMenuItems(menus);
 
 
   }
+  
+  createDialogs() {
+    
+    this.dialogs = {
+      'inventory': new Inventory('inventory', this.cursorKeys),
+      'characterlist': new CharacterList('characterlist', this.cursorKeys)
+    };
 
-  onGive(args) {
-    const key = 'InventoryDialog';
-    console.log("Give!!!!" + args);
-
-
-    this.dialog = new Inventory(key);
-    if (!this.scene.get(key)) {
-      this.scene.add(key, this.dialog);
+    for(const d of Object.keys( this.dialogs)) {
+      if(!this.scene.get(d)) {
+        this.scene.add(d, this.dialogs[d]);
+      }
     }
-    this.scene.launch(key, (data) => {
-      console.log('GIVE THE ' + data.src.name);
-      this.scene.resume();
+
+  }
+
+  closeAllDialogs() {
+    for(const d of Object.keys( this.dialogs)) {
+      if(this.scene.get(d)) {
+        this.scene.stop(d);
+      }
+    }
+  }
+
+  onGive() {
+    
+    this.scene.launch('inventory', (src, data) => {
+    
+      if(data && data.src && data.src.name &&  data.src.name!='Exit') {
+        const item = data.src.name;
+        
+        src.scene.pause();
+        
+        this.scene.launch('characterlist', (src, data) => {
+            
+
+          const tgt = data.src.name;
+
+          let  ret=null;
+
+          if(tgt != 'Exit') {
+            ret={action:'GIVE', item:item, tgt: tgt};
+          }
+          
+          this.closeAllDialogs();
+          this.closeAndReturn(ret);
+        });
+        
+      } else {
+        this.closeAllDialogs();
+
+        this.closeAndReturn(null);
+      }
 
     });
 
@@ -45,9 +83,9 @@ class Actions extends DialogBase {
   }
 
   onExit(args) {
-    console.log("shutting down dialog");
-    this.scene.stop();
-    this.closeCallback();
+    console.log('shutting down dialog');
+    
+    this.closeAndReturn(null);
   }
 
 }

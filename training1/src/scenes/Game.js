@@ -280,8 +280,16 @@ class Game extends Phaser.Scene {
       this.scene.add(key, this.dialog);
     }
 
-    this.scene.launch(key, () => {
-      console.log('i think im here');
+    this.scene.launch(key, (src, args) => {
+      console.log('you clicked: ' +  args);
+
+      src.scene.stop();
+     
+      if(!args) {
+        alert('Cancelled');
+      } else {
+        alert(JSON.stringify(args));
+      }
       this.scene.resume();
     });
     this.scene.pause();

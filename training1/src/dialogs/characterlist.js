@@ -1,17 +1,20 @@
 /// <reference path="../typings/phaser.d.ts" />
 import DialogBase from './dialogbase.js';
 
-export default class Inventory extends DialogBase {
+
+export default class CharacterList extends DialogBase {
+
 
   constructor(handle, cursorKeys) {
     super(handle, cursorKeys);
 
-    this.selectedItem = null;
+
   }
 
   create() {
-    super.create(50, 30);
-    const menus = ['Red Herring', 'Instruction Book', 'Pot of Glue', 'Exit'];
+    super.create(70, 70);
+
+    const menus = ['Samsun the Strong', 'Elrand Half-elven', 'Charlie Sheen', 'Your Mum',  'Exit'];
 
     this.addMenuItems(menus);
 
@@ -23,15 +26,10 @@ export default class Inventory extends DialogBase {
     this.closeAndReturn(args);
 
   }
-
   onExit(args) {
+    console.log('shutting down dialog');
+    
     this.closeAndReturn(args);
   }
-  update() {
 
-    // navigate next using down arrow
-
-
-  }
 }
-

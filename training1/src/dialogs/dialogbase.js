@@ -14,10 +14,11 @@ class DialogBase extends Phaser.Scene {
 
   }
 
+  
   closeAndReturn(data) {
     console.log('shutting down dialog');
-    this.scene.stop();
-    this.closeCallback(data);
+    
+    this.closeCallback(this, data);
   }
   loadUI() {
 
