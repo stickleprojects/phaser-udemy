@@ -15,7 +15,7 @@ class DialogBase extends Phaser.Scene {
   }
 
   closeAndReturn(data) {
-    console.log("shutting down dialog");
+    console.log('shutting down dialog');
     this.scene.stop();
     this.closeCallback(data);
   }
@@ -43,10 +43,10 @@ class DialogBase extends Phaser.Scene {
       0,
       46,
       46,
-      "ui",
-      "splitted/borders/single/single_borders", {
-      top: 10
-    }
+      'ui',
+      'splitted/borders/single/single_borders', {
+        top: 10
+      }
     );
 
     const offset = 4;
@@ -82,24 +82,24 @@ class DialogBase extends Phaser.Scene {
   addMenuItems(menuItems) {
 
     let y = 0;
-    let index = 0;
+    
     const x = 10;
     const gap = 15;
 
 
     menuItems.forEach(itm => {
-      const btn = new TextButton(this, itm.replace(" ", ""), x, y, itm, undefined, (args) => {
-        console.log("you clicked " + args.src.name);
+      const btn = new TextButton(this, itm.replace(' ', ''), x, y, itm, undefined, (args) => {
+        console.log('you clicked ' + args.src.name);
 
         // find the click event
         const eventNames = [
-          "on" + args.src.name,
-          "onClick"]
+          'on' + args.src.name,
+          'onClick'];
         for (const eventName of eventNames) {
           let eventTgt = args.src.scene;
           let methods = this.getInstanceMethodNames(eventTgt);
           if (methods.includes(eventName)) {
-            console.log("invoking " + eventName);
+            console.log('invoking ' + eventName);
             eventTgt[eventName](args);
             break;
           }
@@ -116,9 +116,9 @@ class DialogBase extends Phaser.Scene {
     const dims = {
       width: width,
       height: height
-    }
+    };
     this.cameras.main.setViewport(x, y, dims.width, dims.height);
-    this.cameras.main.setBackgroundColor("#ff00ff");
+    this.cameras.main.setBackgroundColor('#ff00ff');
     this.add.image(0, 0, 'ui', 'splitted/borders/paper background');
 
     this.createBorder(dims);
