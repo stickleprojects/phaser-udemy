@@ -16,6 +16,7 @@ class Game extends Phaser.Scene {
     this.load.audio('key', ['assets/sounds/Key1.wav']);
     this.load.audio('jump', 'assets/sounds/jump.wav');
     this.load.audio('die', 'assets/sounds/die.wav');
+    this.load.audio('finish', 'assets/sounds/finish.wav');
 
 
   }
@@ -31,6 +32,8 @@ class Game extends Phaser.Scene {
     // we use the tiles from the world-1-sheet so we must load it as a spriesheet rather than an image
     this.load.spritesheet('world-1-sheet', 'assets/tilesets/groundtiles.png', { frameWidth: 32, frameHeight: 32, margin: 1, spacing: 2 });
     this.load.image('clouds-sheet', 'assets/tilesets/Clouds.png');
+
+    this.load.spritesheet('coin-sheet','assets/tiles/coins.png', { frameWidth: 32, frameHeight: 32});
 
     this.load.spritesheet('key-sheet', 'assets/tiles/key.png', { frameWidth: 32, frameHeight: 32 });
   }
@@ -54,15 +57,14 @@ class Game extends Phaser.Scene {
 
     // allow her to jump up outside the world, but not fall off the bottom
     this.physics.world.setBoundsCollision(true, true, false, true);
-
-
+    
     if (this.showTileDebugging) {
       const debugGraphics = this.add.graphics();
       groundLayer.renderDebug(debugGraphics);
     }
 
     this.keyGroup = this.physics.add.group({ immovable: true, allowGravity: false });
-
+    this.finishGroup = this.physics.add.group({ immovable: true, allowGravity: false });
     // default properties for the spikes
     this.spikeGroup = this.physics.add.group({ immovable: true, allowGravity: false });
 
@@ -87,6 +89,11 @@ class Game extends Phaser.Scene {
         newSpike.setSize(itm.width - 10, itm.height - 10);
         newSpike.setOffset(5, 10);
 
+      } else if (itm.name == 'finish') {
+        this.finish = this.finishGroup.create(itm.x, itm.y, 'coin-sheet');
+        this.finish.anims.play('coin-spinning');
+        this.finish.setOrigin(0,1);
+        
       }
 
     });
@@ -98,6 +105,25 @@ class Game extends Phaser.Scene {
     this.scorehud = this.add.text(0, 0, 'SCORE: 0', { font: '12px Arial', fill: '#ffffa0' });
     this.scorehud.setScrollFactor(0);
 
+
+    this.instructions = this.add.text(100,0,'Arrow-Keys to move, Space for menu (only when on ground) \nmenu is mouse-only', { font: '12px Arial', fill: '#ffffa0' });
+    this.instructions.setScrollFactor(0);
+
+    this.gameOver = this.add.text(0,100,'Game Over!', { font: '12px Arial', fill: '#ffffa0' });
+    this.gameOver.setScrollFactor(0);
+    this.gameOver.setVisible(false);
+
+    this.gameoverTween = this.tweens.add( {
+      targets: this.gameOver,
+      scaleX: { from: 1, to: 2},
+      scaleY: { from: 1, to: 2},
+      ease: 'Bounce',
+      duration: 1000,
+      repeat: 1,
+      yoyo: true 
+
+    });
+    this.gameoverTween.stop();
 
   }
   create() {
@@ -154,14 +180,24 @@ class Game extends Phaser.Scene {
     });
 
 
-    this.hero.on('jump', () => {
+    const finishCollider = this.physics.add.overlap (this.hero, this.finishGroup, (a,b)=>{
+      
+      b.destroy();
+      this.points += 100;
+      this.sound.play('finish');
 
+      this.hero.kill();
+
+    });
+
+    this.hero.on('jump', () => {
 
       this.sound.play('jump');
     });
     this.hero.on('died', () => {
       groundCollider.destroy();
       spikesCollider.destroy();
+      finishCollider.destroy();
       keyCollider.destroy();
       this.sound.play('die');
       this.hero.body.setCollideWorldBounds(false);
@@ -203,6 +239,18 @@ class Game extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers('key-sheet'),
       repeat: -1,
       frameRate: 15,
+      showOnStart: true
+    });
+    
+    var fn = this.anims.generateFrameNumbers('coin-sheet');
+    var s = this.textures['coin-sheet'];
+
+    this.anims.create({
+      key: 'coin-spinning',
+      frames: fn,
+      repeat: -1,
+      
+      frameRate: 10,
       showOnStart: true
     });
 
@@ -259,6 +307,7 @@ class Game extends Phaser.Scene {
 
     }
 
+    
     this.scorehud.setText('SCORE: ' + this.points);
 
     const spacePressed = Phaser.Input.Keyboard.JustDown(this.cursorKeys.space);
