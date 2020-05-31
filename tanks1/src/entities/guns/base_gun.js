@@ -1,4 +1,4 @@
-/// <reference path="../../typings/phaser.d.ts" />
+/// <reference path="../../../node_modules/phaser/types/phaser.d.ts" />
 import Phaser from 'phaser';
 import Bullet from '../bullet';
 

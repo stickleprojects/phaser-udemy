@@ -1,4 +1,4 @@
-/// <reference path="../../typings/phaser.d.ts" />
+/// <reference path="../../../node_modules/phaser/types/phaser.d.ts" />
 import BaseGun from './base_gun';
 
 const BULLET_LIFE = 3500;

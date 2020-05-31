@@ -1,4 +1,4 @@
-/// <reference path="../../typings/phaser.d.ts" />
+/// <reference path="../../../node_modules/phaser/types/phaser.d.ts" />
 import BaseGun from './base_gun';
 
 const BULLET_LIFE = 3500;
@@ -12,7 +12,7 @@ export default class Repeater  extends BaseGun {
     }
 
     shoot() {
-super.shoot(2);        
+        super.shoot(2);        
     }
 }
 

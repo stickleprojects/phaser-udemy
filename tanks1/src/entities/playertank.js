@@ -1,4 +1,4 @@
-/// <reference path="../typings/phaser.d.ts" />
+/// <reference path="typings/phaser.d.ts" />
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
 
