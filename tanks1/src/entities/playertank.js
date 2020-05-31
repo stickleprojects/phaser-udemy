@@ -1,12 +1,11 @@
 /// <reference path="../typings/phaser.d.ts" />
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
-import Bullet from './bullet';
+
+import Peashooter from './guns/peashooter';
 
 const TANK_SPEED = 100;
 const ROTATION_SPEED = 200;
-const BULLET_LIFE = 3500;
-const BULLET_SPEED = 800;
 export default class PlayerTank extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y) {
@@ -33,17 +32,13 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
 
     this.debugHud = scene.add.text(0, 60, 'debug');
 
+    this.gun = new Peashooter (scene, this);
     
   }
 
   shoot() {
 
-    const b = new Bullet(this.scene, this.x, this.y, BULLET_SPEED, BULLET_LIFE );
-
-    b.fire(this);
-    
-    b.setCollideWorldBounds(true);
-    b.setBounce(0.5, 0.5);
+    this.gun.shoot();
 
   }
   setupAnimations() {

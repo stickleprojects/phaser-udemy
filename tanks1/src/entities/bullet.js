@@ -33,6 +33,7 @@ export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     update(time, delta) {
       this.born += delta
       if (this.born > this.max_life) {
+        this.emit("dead");
         this.destroy()
       }
     }
