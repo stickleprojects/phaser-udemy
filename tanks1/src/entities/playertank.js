@@ -3,6 +3,7 @@ import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
 
 import Peashooter from './guns/peashooter';
+import Repeater from './guns/repeater';
 
 const TANK_SPEED = 100;
 const ROTATION_SPEED = 200;

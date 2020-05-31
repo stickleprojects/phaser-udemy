@@ -5,13 +5,15 @@ import Bullet from '../bullet';
 
 export default class BaseGun  extends Phaser.GameObjects.Sprite {
     
-    constructor(scene, owner, bullet_speed, bullet_life, max_bullets) {
+    constructor(scene, owner, bullet_speed, bullet_life, max_bullets, bullet_texture, bullet_frame) {
         super(scene, owner.x, owner.y, 'tanks', 0);
 
         scene.add.existing(this);
 
         this.owner = owner;
 
+        this.bullet_texture = bullet_texture;
+        this.bullet_frame = bullet_frame;
         this.bullet_speed = bullet_speed;
         this.bullet_life = bullet_life;
         this.max_bullets = max_bullets;
@@ -26,15 +28,15 @@ export default class BaseGun  extends Phaser.GameObjects.Sprite {
         this.rotation = this.owner.rotation;
 
     }
-    shoot() {
+    shoot(scale) {
 
         // dont shoot
         if(this.bullets.size >= this.max_bullets) {
             return false;
         }
-        const b = new Bullet(this.scene, this.x, this.y, this.bullet_speed, this.bullet_life );
+        const b = new Bullet(this.scene, this.x, this.y, this.bullet_speed, this.bullet_life, this.bullet_texture, this.bullet_frame );
     
-        b.fire(this);
+        b.fire(this, scale);
         
         b.setCollideWorldBounds(true);
         b.setBounce(0.5, 0.5);

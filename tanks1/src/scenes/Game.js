@@ -9,7 +9,7 @@ class Game extends Phaser.Scene {
   init(data) {}
 
   preload() {
-    this.load.image('logo', 'assets/phaser3-logo.png');
+    
     this.load.multiatlas('tanks-sheet', 'assets/tanks.json', 'assets');
 
   }
@@ -60,7 +60,7 @@ class Game extends Phaser.Scene {
   }
 
   verifyTexturesLoaded() {
-    var textureNames=['logo','tanks-sheet']
+    var textureNames=['tanks-sheet']
 
     for(const tn of textureNames) {
       if(this.textures.get(tn).key == '__MISSING') {

@@ -7,18 +7,14 @@ const MAX_BULLETS = 2;
 export default class Peashooter  extends BaseGun {
     
     constructor(scene, owner) {
-        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS);
+        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS, 'tanks-sheet','explotions/shot/bullet1');
 
     }
 
     shoot() {
-        return super.shoot();
-        // const b = new Bullet(this.scene, this.x, this.y, this.bullet_speed, this.bullet_life );
-    
-        // b.fire(this);
+        return super.shoot(2);
         
-        // b.setCollideWorldBounds(true);
-        // b.setBounce(0.5, 0.5);
-    
       }
 }
+
+
