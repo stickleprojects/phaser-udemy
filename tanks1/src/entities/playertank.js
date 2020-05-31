@@ -1,10 +1,12 @@
 /// <reference path="../typings/phaser.d.ts" />
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
+import Bullet from './bullet';
 
 const TANK_SPEED = 100;
 const ROTATION_SPEED = 200;
-
+const BULLET_LIFE = 3500;
+const BULLET_SPEED = 800;
 export default class PlayerTank extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y) {
@@ -30,8 +32,20 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
     this.setupMovement();
 
     this.debugHud = scene.add.text(0, 60, 'debug');
+
+    
   }
 
+  shoot() {
+
+    const b = new Bullet(this.scene, this.x, this.y, BULLET_SPEED, BULLET_LIFE );
+
+    b.fire(this);
+    
+    b.setCollideWorldBounds(true);
+    b.setBounce(0.5, 0.5);
+
+  }
   setupAnimations() {
     this.animState = new StateMachine({
       init: 'idle',
@@ -126,6 +140,8 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
+    this.didPressFire = !this.isDead() && Phaser.Input.Keyboard.JustDown(this.keys.space);
+
     const r = this.rotation - (Math.PI /2) ;
     
     const v = this.body.world.scene.physics.velocityFromRotation(r, TANK_SPEED);
@@ -151,6 +167,10 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
       this.body.setAngularVelocity(0);
       
       this.rotating = false;
+    }
+
+    if(this.didPressFire) {
+      this.shoot();
     }
 
     if(!this.isDead() && this.keys.left.isDown) {
