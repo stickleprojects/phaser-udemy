@@ -2,9 +2,10 @@
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
 
-const TANK_SPEED = 1000;
+const TANK_SPEED = 100;
+const ROTATION_SPEED = 200;
 
-class PlayerTank extends Phaser.GameObjects.Sprite {
+export default class PlayerTank extends Phaser.GameObjects.Sprite {
 
   constructor(scene, x, y) {
     super(scene, x, y, 'tanks', 0);
@@ -13,19 +14,22 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this);
 
     // middle bottom
-    this.setOrigin(0.5, 1);
+    this.setOrigin(0.5, 0.5);
 
     this.body.setCollideWorldBounds(true);
-    this.body.setSize(12, 40);
-    this.body.setOffset(12, 23);
+    this.body.setSize(16, 16);
+    this.body.setOffset(0, 0);
     this.body.setMaxVelocity(250, 400);
     this.body.setDragX(750);
+    this.body.setAngularDrag (3500);
 
     this.keys = scene.cursorKeys;
     this.input = {};
 
     this.setupAnimations();
     this.setupMovement();
+
+    this.debugHud = scene.add.text(0, 60, 'debug');
   }
 
   setupAnimations() {
@@ -33,8 +37,8 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
       init: 'idle',
       transitions: [
         { name: 'idle', from: [ 'running', 'rotating'], to: 'idle' },
-        { name: 'run', from: [ 'idle', 'rotating'], to: 'running' },
-        { nanme: 'rotate', from:'idle', to:'rotating'}
+        { name: 'move', from: [ 'idle', 'rotating'], to: 'moving' },
+        { name: 'rotate', from:'idle', to:'rotating'}
       ],
       methods: {
         onEnterState: (lifecycle) => {
@@ -46,7 +50,7 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
 
     this.animPredicates = {
       idle: () => {
-        return this.body.velocity.x === 0;
+        return this.body.velocity.x === 0 && this.body.velocity.y === 0;
       },
       run: () => {
         // let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1);
@@ -54,12 +58,15 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
         return true;
       },
       rotate: ()=>{
-        return true;
+        return this.isRotating();
       }
       
     };
   }
 
+  isRotating() {
+    return this.rotation != this.rotateTarget;
+  }
   
   setupMovement() {
     this.moveState = new StateMachine({
@@ -77,30 +84,27 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
           this.body.setAcceleration(0);
         },
         onMove: () => {
-          this.body.
+          
           this.emit('jump');
         },
-        onFlip: () => {
-          this.body.setVelocityY(-300);
-        }
+        
       },
     });
 
     this.movePredicates = {
-      jump: () => {
-        return this.input.didPressJump;
+      move: () => {
+        return !this.isRotating() && (this.velocity.x > 0 || this.velocity.y > 0)
       },
-      flip: () => {
-        return this.input.didPressJump;
+      stop: () => {
+        return (this.velocity.x === 0 && this.velocity.y === 0);
       },
-      fall: () => {
-        return !this.body.onFloor();
-      },
-      touchdown: () => {
-        return this.body.onFloor();
-      },
+      shoot: ()=>{
+        return false;
+      }
     };
   }
+
+
 
   kill() {
     if (this.moveState.can('die')) {
@@ -117,20 +121,45 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
   isDead() {
     return this.moveState.is('dead');
   }
+
+  
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
 
+    const r = this.rotation - (Math.PI /2) ;
+    
+    const v = this.body.world.scene.physics.velocityFromRotation(r, TANK_SPEED);
 
     if (!this.isDead() && this.keys.up.isDown) {
-      this.body.setVelocityX(TANK_SPEED * Math.cos(Math.PI * this.rotation));
-      this.body.setVelocityY(TANK_SPEED * Math.sin(Math.PI * this.rotation));
-      
+  
+      this.body.velocity.x = v.x;
+      this.body.velocity.y = v.y;
+
+      this.rotating = false;
     } else if (!this.isDead() && this.keys.down.isDown) {
-      this.body.setVelocityX(-TANK_SPEED * Math.cos(Math.PI * this.rotation));
-      this.body.setVelocityY(-TANK_SPEED * Math.sin(Math.PI * this.rotation));
+   
+      const vx = -v.x;
+      const vy = -v.y;
+
+      this.body.velocity.x = -v.x;
+      this.body.velocity.y = -v.y;
+  
+      this.rotating = false;
     } else {
-      this.body.setAccelerationX(0);
-      this.body.setAccelerationY(0);
+      this.body.setVelocity(0,0);
+      
+      this.body.setAngularVelocity(0);
+      
+      this.rotating = false;
+    }
+
+    if(!this.isDead() && this.keys.left.isDown) {
+
+      this.body.angularVelocity = -ROTATION_SPEED;
+      
+    } else if(!this.isDead() && this.keys.right.isDown) {
+
+      this.body.angularVelocity = ROTATION_SPEED;
     }
 
     for (const t of this.moveState.transitions()) {
@@ -145,9 +174,10 @@ class PlayerTank extends Phaser.GameObjects.Sprite {
         this.animState[t]();
         break;
       }
+
     }
   }
 
+  
 }
 
-export default Hero;

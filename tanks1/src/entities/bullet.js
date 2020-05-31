@@ -1,7 +1,7 @@
 /// <reference path="../typings/phaser.d.ts" />
 import Phaser from 'phaser';
 
-class Bullet extends Phaser.Physics.Arcade.Sprite {
+export default class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
       super(scene, x, y, 'bullet')
       this.born = 0

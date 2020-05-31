@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import  PlayerTank from '../entities/playertank';
 
 class Game extends Phaser.Scene {
   constructor() {
@@ -15,7 +16,7 @@ class Game extends Phaser.Scene {
 
   createAnims() {
     const f = this.anims.generateFrameNames('tanks-sheet', {
-      prefix:'blue/down',
+      prefix:'blue/up',
       suffix:'',
       start:1,
       end:2,
@@ -23,8 +24,35 @@ class Game extends Phaser.Scene {
     });
 
     this.anims.create({
-      key: 'bluedown',
+      key: 'tank-moving',
       frames : f,
+      frameRate: 20,
+      repeat: -1
+    });
+
+    
+    this.anims.create({
+      key: 'tank-idle',
+      frames : this.anims.generateFrameNames('tanks-sheet', {
+        prefix:'blue/up',
+        suffix:'',
+        start:1,
+        end:1,
+        zeroPad:0
+      }),
+      frameRate: 20,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'tank-rotating',
+      frames : this.anims.generateFrameNames('tanks-sheet', {
+        prefix:'blue/up',
+        suffix:'',
+        start:1,
+        end:1,
+        zeroPad:0
+      }),
       frameRate: 20,
       repeat: -1
     });
@@ -42,18 +70,24 @@ class Game extends Phaser.Scene {
   }
   create(data) {
 
+    
     this.verifyTexturesLoaded();
 
+    this.cursorKeys = this.input.keyboard.createCursorKeys();
+
     this.createAnims();
-    this.add.image(400, 300, 'logo');
+    
+    this.tank1 = new PlayerTank (this, 400,400);
+    this.tank1.setScale(4,4);
 
-    this.tank1 = this.add.sprite(100,100,'tanks');
-    this.tank1.setScale(8,8);
-
-    this.tank1.anims.play('bluedown');
+    this.hud = this.add.text(0,0,'tank deetz: ');
+    
   }
 
-  update(time, delta) {}
+  update(time, delta) {
+    this.hud.setText('x: ' + this.tank1.x + ", y: " + this.tank1.y );
+
+  }
 }
 
 export default Game;
