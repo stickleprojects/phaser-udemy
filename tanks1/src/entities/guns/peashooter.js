@@ -3,7 +3,7 @@ import BaseGun from "./base_gun";
 
 const BULLET_LIFE = 3500;
 const BULLET_SPEED = 800;
-const MAX_BULLETS = 2;
+const MAX_BULLETS = 6;
 export default class Peashooter extends BaseGun {
   constructor(scene, owner) {
     super(
