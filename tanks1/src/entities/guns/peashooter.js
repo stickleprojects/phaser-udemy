@@ -7,7 +7,7 @@ const MAX_BULLETS = 2;
 export default class Peashooter  extends BaseGun {
     
     constructor(scene, owner) {
-        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS, 'tanks-sheet','explotions/shot/bullet1');
+        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS, 'tanks-sheet','blue/peashooter','tanks-sheet','explotions/shot/peashooter');
 
     }
 

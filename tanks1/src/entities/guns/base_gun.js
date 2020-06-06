@@ -5,13 +5,15 @@ import Bullet from '../bullet';
 
 export default class BaseGun  extends Phaser.GameObjects.Sprite {
     
-    constructor(scene, owner, bullet_speed, bullet_life, max_bullets, bullet_texture, bullet_frame) {
-        super(scene, owner.x, owner.y, 'tanks', 0);
+    constructor(scene, owner, bullet_speed, bullet_life, max_bullets, gun_texture, gun_frame, bullet_texture, bullet_frame) {
+        super(scene, owner.x, owner.y, gun_texture, gun_frame);
 
         scene.add.existing(this);
 
-        this.owner = owner;
+        this.setScale(4);
 
+        this.owner = owner;
+        
         this.bullet_texture = bullet_texture;
         this.bullet_frame = bullet_frame;
         this.bullet_speed = bullet_speed;

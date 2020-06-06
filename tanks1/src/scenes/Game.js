@@ -30,9 +30,21 @@ class Game extends Phaser.Scene {
       repeat: -1
     });
 
-    
     this.anims.create({
-      key: 'tank-idle',
+      key: 'tank-shooting',
+      frames : this.anims.generateFrameNames('tanks-sheet', {
+        prefix:'blue/up',
+        suffix:'',
+        start:1,
+        end:1,
+        zeroPad:0
+      }),
+      frameRate: 20,
+      repeat: -1
+    });
+
+    this.anims.create({
+      key: 'tank-stopped',
       frames : this.anims.generateFrameNames('tanks-sheet', {
         prefix:'blue/up',
         suffix:'',
@@ -85,7 +97,13 @@ class Game extends Phaser.Scene {
   }
 
   update(time, delta) {
-    this.hud.setText('x: ' + this.tank1.x + ", y: " + this.tank1.y );
+    const t = 'x: ' + this.tank1.x.toFixed(2) 
+      + ", y: " + this.tank1.y.toFixed(2)  
+      + ", r: " + this.tank1.rotation.toFixed(2)
+      + " anim:" + this.tank1.getAnimationState().state 
+      + " mov:" + this.tank1.getMovementState().state;
+
+    this.hud.setText(t);
 
   }
 }

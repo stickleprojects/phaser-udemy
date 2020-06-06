@@ -7,7 +7,7 @@ const MAX_BULLETS = 6;
 export default class Repeater  extends BaseGun {
     
     constructor(scene, owner) {
-        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS, 'tanks-sheet', 'explotions/shot/rocket1');
+        super(scene, owner, BULLET_SPEED, BULLET_LIFE, MAX_BULLETS, 'tanks-sheet','blue/repeater','tanks-sheet', 'explotions/shot/rocket1');
 
     }
 

@@ -1,4 +1,4 @@
-/// <reference path="typings/phaser.d.ts" />
+/// <reference path="../../node_modules/phaser/types/phaser.d.ts" />
 import Phaser from 'phaser';
 import StateMachine from 'javascript-state-machine';
 
@@ -33,22 +33,24 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
 
     this.debugHud = scene.add.text(0, 60, 'debug');
 
-    this.gun = new Peashooter (scene, this);
+  //  this.gun = new Repeater (scene, this);
     
   }
 
   shoot() {
 
+    if(this.gun) {
     this.gun.shoot();
-
+    }
   }
   setupAnimations() {
     this.animState = new StateMachine({
-      init: 'idle',
+      init: 'stopped',
       transitions: [
-        { name: 'idle', from: [ 'running', 'rotating'], to: 'idle' },
-        { name: 'move', from: [ 'idle', 'rotating'], to: 'moving' },
-        { name: 'rotate', from:'idle', to:'rotating'}
+        { name: 'stop', from: [ 'moving', 'rotating', 'shooting'], to: 'stopped' },
+        { name: 'rotate', from: 'stopped', to: 'rotating' },
+        { name: 'move', from:'stopped', to:'moving'},
+        { name:'shoot', from:'stopped', to:'shooting'}
       ],
       methods: {
         onEnterState: (lifecycle) => {
@@ -59,33 +61,44 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
     });
 
     this.animPredicates = {
-      idle: () => {
-        return this.body.velocity.x === 0 && this.body.velocity.y === 0;
+      stop: (tgt) => {
+        return !tgt.isMoving() && !tgt.isRotating();
       },
-      run: () => {
+      move: (tgt) => {
         // let facingDirectionOfWalk = Math.sign(this.body.velocity.x) === (this.flipX ? -1 : 1);
         // return this.body.onFloor() && facingDirectionOfWalk;
-        return true;
+        return !tgt.isRotating() && tgt.isMoving();
       },
-      rotate: ()=>{
-        return this.isRotating();
+      rotate: (tgt)=>{
+        return tgt.isRotating();
+      },
+      shoot: (tgt) => {
+        return tgt.didPressFire;
       }
-      
     };
   }
 
+  isMoving() {
+    return this.body.velocity.x !==0 || this.body.velocity.y !==0;
+  }
   isRotating() {
-    return this.rotation != this.rotateTarget;
+    return this.rotating;
   }
   
+  getMovementState() {
+    return this.moveState;
+  }
+  getAnimationState() {
+    return this.animState;
+  }
   setupMovement() {
     this.moveState = new StateMachine({
-      init: 'standing',
+      init: 'stopped',
       transitions: [
-        { name: 'move', from: 'idle', to: 'moving' },
-        { name: 'stop', from: 'running', to: 'stop' },
-        { name: 'rotate', from: 'stop', to: 'rotating' },
-        { name: 'shoot', from:'stop', to:'shooting'},
+        { name: 'move', from: 'stopped', to: 'moving' },
+        { name: 'stop', from: ['shooting','rotating','moving'], to: 'stopped' },
+        { name: 'rotate', from: 'stopped', to: 'rotating' },
+        { name: 'shoot', from:'stopped', to:'shooting'},
         { name: 'die', from: '*', to: 'dead' },
       ],
       methods: {
@@ -102,14 +115,18 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
     });
 
     this.movePredicates = {
-      move: () => {
-        return !this.isRotating() && (this.velocity.x > 0 || this.velocity.y > 0)
+      move: (tgt) => {
+        return !tgt.isRotating() && tgt.isMoving();
       },
-      stop: () => {
-        return (this.velocity.x === 0 && this.velocity.y === 0);
+      stop: (tgt) => {
+        return !tgt.isMoving() && !tgt.isRotating();
       },
-      shoot: ()=>{
-        return false;
+      
+      rotate: (tgt) => {
+        return tgt.isRotating();
+      },
+      shoot: (tgt)=>{
+        return tgt.didPressFire;
       }
     };
   }
@@ -169,24 +186,26 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
       this.shoot();
     }
 
+    if(!this.isMoving()) {
     if(!this.isDead() && this.keys.left.isDown) {
 
       this.body.angularVelocity = -ROTATION_SPEED;
-      
+      this.rotating = true;
     } else if(!this.isDead() && this.keys.right.isDown) {
 
       this.body.angularVelocity = ROTATION_SPEED;
+      this.rotating = true;
     }
-
+  }
     for (const t of this.moveState.transitions()) {
-      if (t in this.movePredicates && this.movePredicates[t]()) {
+      if (t in this.movePredicates && this.movePredicates[t](this)) {
         this.moveState[t]();
         break;
       }
     }
 
     for (const t of this.animState.transitions()) {
-      if (t in this.animPredicates && this.animPredicates[t]()) {
+      if (t in this.animPredicates && this.animPredicates[t](this)) {
         this.animState[t]();
         break;
       }
