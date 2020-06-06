@@ -159,7 +159,9 @@ class Game extends Phaser.Scene {
       " anim:" +
       this.tank1.getAnimationState().state +
       " mov:" +
-      this.tank1.getMovementState().state;
+      this.tank1.getMovementState().state +
+      " bullets:" +
+      this.tank1.getRemainingBullets();
 
     this.hud.setText(t);
   }

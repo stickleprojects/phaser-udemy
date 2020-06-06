@@ -33,6 +33,11 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
     //  this.gun = new Repeater (scene, this);
   }
 
+  getRemainingBullets() {
+    if (!this.gun) return 0;
+    return this.gun.getRemainingBullets();
+  }
+
   setGun(newGun) {
     if (newGun) {
       if (this.gun) {
