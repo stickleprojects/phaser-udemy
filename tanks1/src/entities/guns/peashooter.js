@@ -15,7 +15,8 @@ export default class Peashooter extends BaseGun {
       "tanks-sheet",
       "blue/peashooter",
       "tanks-sheet",
-      "explotions/shot/bullet1"
+      "explotions/shot/bullet1",
+      30
     );
   }
 

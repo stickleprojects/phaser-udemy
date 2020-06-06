@@ -12,7 +12,8 @@ export default class BaseGun extends Phaser.GameObjects.Sprite {
     gun_texture,
     gun_frame,
     bullet_texture,
-    bullet_frame
+    bullet_frame,
+    remaining_bullets
   ) {
     super(scene, owner.x, owner.y, gun_texture, gun_frame);
 
@@ -28,6 +29,7 @@ export default class BaseGun extends Phaser.GameObjects.Sprite {
     this.bullet_life = bullet_life;
     this.max_bullets = max_bullets;
     this.bullets = new Set();
+    this.remaining_bullets = remaining_bullets;
   }
 
   setOwner(newOwner) {
@@ -39,11 +41,20 @@ export default class BaseGun extends Phaser.GameObjects.Sprite {
     this.y = this.owner.y;
     this.rotation = this.owner.rotation;
   }
+  getRemainingBullets() {
+    return this.remaining_bullets;
+  }
   shoot(scale) {
     // dont shoot
     if (this.bullets.size >= this.max_bullets) {
       return false;
     }
+
+    if (this.remaining_bullets === 0) {
+      return false;
+    }
+    this.remaining_bullets--;
+
     const b = new Bullet(
       this.scene,
       this.x,
