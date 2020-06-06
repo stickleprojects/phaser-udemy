@@ -44,6 +44,10 @@ export default class PlayerTank extends Phaser.GameObjects.Sprite {
         this.gun.destroy();
       }
       this.gun = newGun;
+
+      this.gun.on("empty", () => {
+        this.gun = null;
+      });
     }
   }
   shoot() {

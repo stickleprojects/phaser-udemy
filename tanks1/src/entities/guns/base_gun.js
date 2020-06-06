@@ -73,5 +73,12 @@ export default class BaseGun extends Phaser.GameObjects.Sprite {
       this.bullets.delete(b);
     });
     this.bullets.add(b);
+
+    // kill the gun on the last bullet
+    if (this.remaining_bullets == 0) {
+      this.emit("empty");
+
+      this.destroy();
+    }
   }
 }
